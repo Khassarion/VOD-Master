@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>업데이트 알림</title>
+    <link rel="stylesheet" href="update_notification_common.css">
+</head>
+<body>
+    <div class="update-container">
+        <div class="version-number" id="versionNumber">v1.8.0.0 주요 변경사항</div>
+        <ul class="changes-list" id="changesList">
+            <li>
+                <strong>새 기능: 클립 탐색기</strong> <span style="color:#888; font-size:13px;">(SOOP)</span>
+                <video src="img/soop_clip_explorer.mp4" autoplay muted loop playsinline preload="auto" aria-label="클립 탐색기 사용 예" style="display: block; width: 100%; max-width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 8px;"></video>
+                <ul class="bug-fix-list" style="margin-top: 8px; margin-bottom: 8px;">
+                    <li><b>다시보기</b> 플레이어 페이지의 유저 클립 버튼 우측의 <b>클립 탐색기</b> 버튼을 눌러 클립 탐색을 시작합니다.<br><img src="img/soop_clip_explorer_open_clip_explorer_button.png" alt="클립 탐색기 버튼 (유저 클립 버튼 오른쪽)" class="preview-image" onclick="openImageModal(this.src)" style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-top: 8px;"></li>
+                    <li>설정에서 ON/OFF할 수 있습니다. (기본 ON)</li>
+                    <li>자세한 소개는 <a href="index.html#clipmap" target="_blank" rel="noopener noreferrer">여기</a>를 읽어 보세요</li>
+                </ul>
+            </li>
+            <li>
+                <strong>설정 화면 개선</strong>
+                <ul class="bug-fix-list" style="margin-top: 8px; margin-bottom: 8px;">
+                    <li>저장 버튼이 화면 아래에 항상 보이고, 저장하지 않은 변경사항이 있으면 안내 문구가 표시됩니다.</li>
+                </ul>
+            </li>
+        </ul>
+        <p style="margin-top: 16px; font-size: 14px; color: #555;">VOD Master에 어떤 기능들이 있는지 <a href="https://khassarion.github.io/VOD-Master/doc/index.html" target="_blank" rel="noopener noreferrer">알아보세요</a>.</p>
+    </div>
+
+    <!-- 이미지 모달 -->
+    <div class="image-modal" id="imageModal" onclick="closeImageModal()">
+        <img id="modalImage" src="" alt="확대 이미지">
+    </div>
+
+    <script src="update_notification_common.js"></script>
+</body>
+</html>

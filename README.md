@@ -55,6 +55,18 @@ VOD Synchronizer에서 VOD Master로 이름이 변경되었습니다. (2026.03.2
 
 
 ## 업데이트 내역
+### 1.8.0.0 (2026.09.27)
+- 새 기능: 클립 탐색기 — **SOOP 전용**
+
+  ![클립 탐색기 사용 예](./doc/img/soop_clip_explorer_small.gif)
+
+  - 다시보기 플레이어 페이지의 **유저 클립** 버튼 우측에 **클립 탐색기** 버튼이 생깁니다.
+  - 이 다시보기에서 만들어진 클립·캐치가 다시보기의 어느 구간인지 시간축에 표시하고, 많이 겹친 곳(**몰린 곳**)을 알려줍니다.
+  - 목록에서 여러 개를 골라 타임라인 댓글 형식으로 복사할 수 있습니다.
+  - 설정에서 ON/OFF할 수 있습니다. (기본 ON)
+  - [소개 페이지](https://khassarion.github.io/VOD-Master/doc/index.html#clipmap)
+- 설정 화면: 저장 버튼이 항상 보이고, 저장하지 않은 변경사항이 있으면 안내합니다.
+
 ### 1.7.0.4 (2026.09.01)
 - 클립이나 캐치와 연결된 다시보기를 시청할 권한이 없는 경우(구플전용 등) 라이브 당시시간이 올바르게 갱신되지 않던 문제를 수정했습니다.
 - 로그 보기에서 Debug항목이 이제 기본 해제 상태입니다.
@@ -79,7 +91,7 @@ VOD Synchronizer에서 VOD Master로 이름이 변경되었습니다. (2026.03.2
   - VOD 재생이 끝날 때 다음 영상으로 자동으로 넘어가지 않게 합니다. (다른 페이지 삽입된 VOD 포함)
   - VOD 재생 바의 자동 재생 활성화/비활성화 설정과 별개로 동작합니다.
 
-    ![](./screenshots/soop_autoplay_toggle.png)
+    ![](./doc/img/soop_autoplay_toggle.png)
   - 설정에서 ON/OFF할 수 있습니다. (기본 ON)
 - 이제 설정 창은 항상 새 탭에서 열립니다.
 - 이제 최초 설치 시 설치 완료 안내(기능 설명 문서·설정 페이지 새 탭 버튼) 제공
@@ -104,11 +116,11 @@ VOD Synchronizer에서 VOD Master로 이름이 변경되었습니다. (2026.03.2
 ### 1.6.1.0 (2026.06.25)
 - 새 기능: SOOP 다시보기 순 조회수 표시
   - 다시보기의 경우 조회수 숫자에 마우스를 올리면 순 조회수가 표시됩니다.<br/>
-  ![](./screenshots/soop_reviewVOD_pureViewCount.png)
+  ![](./doc/img/soop_reviewVOD_pureViewCount.png)
 - 이전 채팅 복원
   - 재생 시점이 바뀌어 복원 버튼이 생성될 때 **1회 자동 복원**하는 옵션이 추가되었습니다. (기본값: 사용 안 함)
   - 자동 복원 사용 여부와 자동 복원 구간은 설정(⚙️)에서 조절할 수 있습니다.<br/>
-  ![](./screenshots/soop_prevChatViewer_autoRestoreSetting.png)
+  ![](./doc/img/soop_prevChatViewer_autoRestoreSetting.png)
 - 버그 수정
   - [타 플랫폼과 동기화] CHZZK 검색창이 보이지 않던 문제를 수정했습니다.
 
@@ -144,17 +156,17 @@ VOD Synchronizer에서 VOD Master로 이름이 변경되었습니다. (2026.03.2
 ### 1.5.3 (2026.03.16)
 - 타임라인 편집기
   - 쉬프트를 누른채로 미세조정 시 10초씩 증감됩니다.
-  - ![](./screenshots/timeline_editor_shiftKey.png)
+  - ![](./doc/img/timeline_editor_shiftKey.png)
 - 새 기능: 현재 시간 삽입
   - VOD 댓글 작성 및 수정 시 VOD의 현재 시점을 댓글 내용에 타임라인 형식으로 삽입합니다.
-  - ![](./screenshots/insertCurrentTime_demo.gif)
+  - ![](./doc/img/insertCurrentTime_demo.gif)
   
 ### 1.5.2 (2026.03.03)
 - 새 기능: 타임라인 편집
   - 기존 기능인 타임라인 댓글 동기화 시 타임라인을 수정하고 복사하는 기능을 동기화하지 않고도 일반 댓글의 내용으로부터 가져올 수 있게 타임라인 편집 기능을 추가했습니다.
   - 타임라인이 포함된 댓글의 더보기 옵션(점 세개)을 누르면 타임라인 편집 버튼이 나타납니다. 
   
-![](./screenshots/soop_timeline_edit_option.png)  |  ![](./screenshots/timeline_editor.png)
+![](./doc/img/soop_timeline_edit_option.png)  |  ![](./doc/img/timeline_editor.png)
 :-------------------------:|:-------------------------:
 타임라인 편집 옵션 버튼            |  타임라인 편집기
 
@@ -167,7 +179,7 @@ VOD Synchronizer에서 VOD Master로 이름이 변경되었습니다. (2026.03.2
 - 새 기능: 타임라인 댓글 동기화
   - 타임라인 댓글을 다른 스트리머 다시보기와 동기화할 때 변환할 수 있는 기능이 추가되었습니다.
   - 타임라인이 포함된 댓글의 우측상단에 표시된 `동기화할 때 이 타임라인을 변환`을 클릭하여 활성화하고 동기화를 진행하면 동기화된 다시보기 페이지에서 변환된 타임라인 댓글을 확인하고 미세조정, 복사를 할 수 있습니다. 아직은 SOOP에서만 가능합니다.
-  ![](./screenshots/soop_toggle_timelineCommentSync.png)
+  ![](./doc/img/soop_toggle_timelineCommentSync.png)
 - 이전 채팅 복원
   - 설정에서 이모티콘만으로 구성된 채팅은 제외할 수 있는 기능이 추가되었습니다.
   - 이제 복원된 채팅에 마우스를 올리면 표시되는 `~초 전` 툴팁을 클릭하여 해당 채팅이 발생한 시점으로 이동할 수 있습니다.
@@ -183,16 +195,16 @@ VOD Synchronizer에서 VOD Master로 이름이 변경되었습니다. (2026.03.2
   - 채팅 내 시그니처 이모티콘과 기본 이모티콘, ogq가 지원됩니다.
   - 최대한 데이터를 분석하여 구독 이모티콘, 팬클럽 열혈팬 서포터 매니저 뱃지가 알맞게 표시되도록 했지만 제 나름대로 분석한거라 사실과 다를 수 있습니다. 스트리머 채팅은 아직 분석하지 않아서 정상적으로 표시되지 않을 것입니다.(닉네임과 채팅은 올바르게 표시됩니다)<br/>
 
-![](./screenshots/prevChatViewer.png)  |  ![](./screenshots/prevChatViewer-restored.png) | ![](./screenshots/prevChatViewer-setting.png)
+![](./doc/img/prevChatViewer.png)  |  ![](./doc/img/prevChatViewer-restored.png) | ![](./doc/img/prevChatViewer-setting.png)
 :-------------------------:|:-------------------------:|:-------------------------:
 이전 채팅 복원 버튼            |  이전 채팅 복원 후 | 이전 채팅 복원 설정
 
 <br/><br/>
 - 타임스탬프와 전역 동기화 버튼의 위치가 우 하단 고정에서 vod 플레이어 재생 바 중간으로 변경되었으며 입력이 없을 때 완전히 투명해집니다.
 
-SOOP | ![](./screenshots/new_timestamp_position_soop.png)
+SOOP | ![](./doc/img/new_timestamp_position_soop.png)
 :-------------------------:|:-------------------------:
-CHZZK | ![](./screenshots/new_timestamp_position_chzzk.png)
+CHZZK | ![](./doc/img/new_timestamp_position_chzzk.png)
 
 <br/><br/>
 - 이제 동기화 성공 시 검색창을 깔끔하게 정리합니다.
@@ -218,7 +230,7 @@ CHZZK | ![](./screenshots/new_timestamp_position_chzzk.png)
 - 전역 동기화 버튼이 추가되었습니다. 해당 VOD를 기준으로 나머지 열려있는 VOD들을 동기화합니다.
 - VOD 페이지를 벗어나는 경우 전역동기화 버튼이 남아있던 문제를 수정했습니다.
 
-![전역 동기화 버튼](./screenshots/broadcastSync.png)
+![전역 동기화 버튼](./doc/img/broadcastSync.png)
 
 - CHZZK과 동기화하는 로직이 개선되어 동기화 시간이 단축되었습니다.
 - SOOP의 타임스탬프를 방송시간 외의 시간으로 설정할 수 있던 문제를 수정했습니다.
@@ -231,7 +243,7 @@ CHZZK | ![](./screenshots/new_timestamp_position_chzzk.png)
 - SOOP의 파생된 VOD(클립, 캐치)에서 타임스탬프를 수정하여 특정시간대로 이동하는 기능이 제대로 동작하지 않던 문제를 수정했습니다.
 - 간단한 반복 재생 설정 기능을 추가했습니다. VOD 플레이어의 설정을 누르면 반복 재생 메뉴가 추가됩니다.
 
-![반복 재생 기능](./screenshots/loop_playing.png)
+![반복 재생 기능](./doc/img/loop_playing.png)
 
 - 이제 업데이트 시 1회에 한하여 업데이트 내역을 표시합니다.
 

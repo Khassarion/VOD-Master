@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VOD Master (SOOP)
 // @namespace    http://tampermonkey.net/
-// @version      1.7.0.4
+// @version      1.8.0.0
 // @description  SOOP 다시보기 타임스탬프 표시 및 다른 스트리머의 다시보기와 동기화
 // @author       Khassarion
 // @match        https://vod.sooplive.com/*
@@ -60,6 +60,7 @@
         {{SoopVeditorReplacement}}
         {{SoopLiveWatchCommentNotifier}}
         {{SoopNextVideoAutoplayGuard}}
+        {{SoopClipMap}}
 
         // 타 플랫폼 동기화 iframe: API·링커·라이브 시청 댓글 알림·자동재생 방지만 기동
         if (isIframe) {
@@ -78,11 +79,12 @@
         if (/\/player\/\d+/.test(window.location.pathname)) {
             new SoopTimelineCommentProcessor();
             new SoopVeditorReplacement();
+            new SoopPrevChatViewer();
             new SoopLiveWatchCommentNotifier();
             new SoopNextVideoAutoplayGuard();
+            new SoopClipMap();
         }
-        new SoopPrevChatViewer();
-        
+
         // 동기화 요청이 있는 경우 타임스탬프 매니저에게 요청
         const params = new URLSearchParams(window.location.search);
         const url_request_vod_ts = params.get("request_vod_ts");
@@ -348,6 +350,26 @@
 
             alert(
                 '재등록 방지: 최초 등록 후 영상 총 길이만큼 대기\n'
+                + `(다음 VOD 페이지 로드부터 적용)`
+            );
+        });
+    })();
+
+    // ===================== 클립 탐색기 설정 (유저스크립트 메뉴) =====================
+    (function initClipMapSettingsMenuTM() {
+        if (
+            typeof GM_registerMenuCommand !== 'function'
+            || typeof GM_getValue !== 'function'
+            || typeof GM_setValue !== 'function'
+        ) {
+            return;
+        }
+        const KEY_ENABLE = 'enableClipMap';
+        GM_registerMenuCommand('클립 탐색기 버튼 표시 ON/OFF', () => {
+            const next = GM_getValue(KEY_ENABLE, true) === false;
+            GM_setValue(KEY_ENABLE, next);
+            alert(
+                `클립 탐색기 버튼이 ${next ? 'ON' : 'OFF'}으로 설정되었습니다.\n`
                 + `(다음 VOD 페이지 로드부터 적용)`
             );
         });

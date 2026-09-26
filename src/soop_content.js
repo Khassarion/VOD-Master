@@ -143,6 +143,7 @@ if (window == top && window.location.origin.includes(new URL(window.VODSync.Soop
             'SoopVeditorReplacement': 'src/module/soop_veditor_replacement.js',
             'SoopLiveWatchCommentNotifier': 'src/module/soop_live_watch_comment_notifier.js',
             'SoopNextVideoAutoplayGuard': 'src/module/soop_next_video_autoplay_guard.js',
+            'SoopClipMap': 'src/module/soop_clip_map.js',
         };
         
         // 클래스 로더를 통해 필요한 클래스들 로드
@@ -152,18 +153,17 @@ if (window == top && window.location.origin.includes(new URL(window.VODSync.Soop
         new classes.SoopAPI();
         tsManager = new classes.SoopTimestampManager();
         new classes.SoopVODLinker(false);
+        rpPanel = new classes.RPNicknamePanel();
         if (/\/player\/\d+/.test(window.location.pathname)) {
             new classes.SoopTimelineCommentProcessor();
             new classes.SoopVeditorReplacement();
-        }
-        syncPanel = new classes.OtherPlatformSyncPanel('soop');
-        rpPanel = new classes.RPNicknamePanel();
-        new classes.SoopPrevChatViewer();
-
-        initVodCorePageBridgeHost();
-        if (/\/player\/\d+/.test(window.location.pathname)) {
+            syncPanel = new classes.OtherPlatformSyncPanel('soop');
+            new classes.SoopPrevChatViewer();
+            
+            initVodCorePageBridgeHost();
             new classes.SoopLiveWatchCommentNotifier();
             new classes.SoopNextVideoAutoplayGuard();
+            new classes.SoopClipMap();
         }
 
         // 동기화 요청이 있는 경우 타임스탬프 매니저에게 요청

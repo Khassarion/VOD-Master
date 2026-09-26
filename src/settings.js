@@ -4,6 +4,7 @@ class settingPageManager {
         this.log('constructor');
         this.defaultSettings = {};
         this.settings = {};
+        this.savedSnapshot = null; // 마지막으로 저장(또는 불러온) 시점의 입력값. 지금 입력값과 다르면 저장하지 않은 변경사항이 있는 것이다.
         this.init();
     }
     log(...data){
@@ -24,12 +25,14 @@ class settingPageManager {
         chrome.runtime.sendMessage({ action: 'getAllSettings'}, (response) => {
             this.settings = { ...this.defaultSettings, ...response.settings };
             this.displaySettings();
+            this.markSaved();
         });
     }
 
     saveSettings() {
         chrome.runtime.sendMessage({ action: 'saveSettings', settings: this.settings}, (response) => {
             if (response.success) {
+                this.markSaved();
                 this.showStatus('설정이 저장되었습니다. 일부 설정은 페이지 새로고침이 필요할 수 있습니다.', 'success');
             } else {
                 this.showStatus('설정 저장에 실패했습니다.', 'error');
@@ -40,7 +43,31 @@ class settingPageManager {
     resetSettings() {
         this.settings = { ...this.defaultSettings };
         this.displaySettings();
+        this.updateUnsavedNotice(); // 초기화는 저장 전까지 적용되지 않으므로 변경사항으로 표시된다.
         this.showStatus('설정이 초기화되었습니다.', 'success');
+    }
+
+    // 지금 입력칸의 값을 "저장했을 때의 설정"으로 만들어 문자열로 돌려준다. (this.settings는 바꾸지 않는다.)
+    snapshotForm() {
+        const current = this.settings;
+        this.settings = { ...current };
+        this.collectSettings();
+        const snapshot = JSON.stringify(Object.entries(this.settings).sort(([a], [b]) => a.localeCompare(b)));
+        this.settings = current;
+        return snapshot;
+    }
+
+    // 지금 입력칸의 값을 저장된 상태로 기억하고 경고를 지운다.
+    markSaved() {
+        this.savedSnapshot = this.snapshotForm();
+        this.updateUnsavedNotice();
+    }
+
+    // 저장하지 않은 변경사항이 있으면 저장 막대에 경고 문구를 보여준다.
+    updateUnsavedNotice() {
+        const notice = document.getElementById('unsavedNotice');
+        if (!notice) return;
+        notice.hidden = this.savedSnapshot === null || this.snapshotForm() === this.savedSnapshot;
     }
 
     displaySettings() {
@@ -56,6 +83,7 @@ class settingPageManager {
         document.getElementById('soopLiveWatchLikeNotify').checked = this.settings.soopLiveWatchLikeNotify !== false;
         document.getElementById('soopLiveWatchCommentNotify').checked = !!this.settings.soopLiveWatchCommentNotify;
         document.getElementById('soopLiveWatchDisableAutoplay').checked = this.settings.soopLiveWatchDisableAutoplay !== false;
+        document.getElementById('enableClipMap').checked = this.settings.enableClipMap !== false;
         document.getElementById('soopLiveWatchCommentToast').checked = this.settings.soopLiveWatchCommentToast !== false;
         document.getElementById('soopLiveWatchCommentText').value =
             typeof this.settings.soopLiveWatchCommentText === 'string' && this.settings.soopLiveWatchCommentText.trim()
@@ -253,6 +281,7 @@ class settingPageManager {
         this.settings.soopLiveWatchLikeNotify = document.getElementById('soopLiveWatchLikeNotify').checked;
         this.settings.soopLiveWatchCommentNotify = document.getElementById('soopLiveWatchCommentNotify').checked;
         this.settings.soopLiveWatchDisableAutoplay = document.getElementById('soopLiveWatchDisableAutoplay').checked;
+        this.settings.enableClipMap = document.getElementById('enableClipMap').checked;
         this.settings.soopLiveWatchCommentToast = document.getElementById('soopLiveWatchCommentToast').checked;
         const commentText = document.getElementById('soopLiveWatchCommentText').value.trim();
         this.settings.soopLiveWatchCommentText = commentText || '잘 볼게요';
@@ -299,14 +328,15 @@ class settingPageManager {
             });
         });
 
+        // 입력칸이 바뀔 때마다 저장하지 않은 변경사항이 있는지 확인한다.
+        const generalTab = document.getElementById('general');
+        ['input', 'change'].forEach((type) => {
+            generalTab.addEventListener(type, () => this.updateUnsavedNotice());
+        });
+
         // 저장 버튼
         document.getElementById('saveSettings').addEventListener('click', () => {
             this.trySaveSettings();
-        });
-
-        // 닫기 버튼
-        document.getElementById('closeSettings').addEventListener('click', () => {
-            window.close();
         });
 
         // 설정 내보내기

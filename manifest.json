@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "VOD Master",
-    "version": "1.7.0.4",
+    "version": "1.8.0.0",
     "description": "SOOP, CHZZK 다시보기 타임스탬프 표시 및 다른 스트리머의 다시보기와 동기화 등 VOD 관련 편의 기능 제공",
     "author": "Khassarion",
     "homepage_url": "https://github.com/Khassarion/VOD-Master",
@@ -65,6 +65,7 @@
                 "src/module/soop_veditor_replacement.js",
                 "src/module/soop_live_watch_comment_notifier.js",
                 "src/module/soop_next_video_autoplay_guard.js",
+                "src/module/soop_clip_map.js",
                 "src/module/soop_vodcore_page_bridge.js",
                 "src/module/soop_vod_editor_category_loader.js"
             ],

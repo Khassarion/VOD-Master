@@ -18,6 +18,8 @@ export class SettingsManager {
             soopLiveWatchCommentToast: true,
             // 다음 영상 자동 재생을 계속 끔 (기본 ON)
             soopLiveWatchDisableAutoplay: true,
+            // 클립 탐색기: 플레이어에 "클립 탐색기" 버튼 표시 (기본 ON, 버튼을 누르기 전에는 요청하지 않음)
+            enableClipMap: true,
             // existing_comment | cooldown
             soopLiveWatchCommentDedupMode: 'cooldown',
             // video_duration | custom_hours (cooldown 모드일 때)

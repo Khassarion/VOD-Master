@@ -334,6 +334,52 @@ export class SoopAPI extends IVodSync{
         return b;
     }
     /**
+     * @description 스트리머의 클립·캐치를 기간으로 검색한다 (통합검색 vodSearch v5.0). 응답 항목의 `org_title_no`가 바로 위 부모(다시보기 또는 클립)의 번호다.
+     * 시작 위치(changeSecond)는 응답에 없으므로 필요한 항목만 `GetSoopVodInfo`로 따로 읽는다.
+     * 정렬은 최신순만 쓴다(오름차순 없음). 시작일이 종료일보다 늦으면 서버가 에러(result:-1)를 준다.
+     * @param {string} streamerId 스트리머 ID (szKeyword + szSearchScope=id)
+     * @param {{ fileType?: 'CLIP'|'CATCH', startDate: string, endDate: string, page?: number }} opts 날짜는 YYYY-MM-DD, 양 끝 포함
+     * @returns {Promise<{ RESULT: number, TOTAL_CNT: number, HAS_MORE_LIST: boolean, DATA: object[] }|null>} 실패하면 null
+     */
+    async SearchSoopClips(streamerId, opts = {}) {
+        const { fileType = 'CLIP', startDate, endDate, page = 1 } = opts;
+        const url = new URL(`${this.SoopUrls.SCH_ORIGIN}/api.php`);
+        const params = {
+            l: 'DF', m: 'vodSearch', w: 'webk', isMobile: '0', szType: 'json', c: 'UTF-8', v: '5.0',
+            szKeyword: streamerId,
+            nPageNo: String(page),
+            // 캐치 검색은 페이지당 30행만 주므로 30을 넘기면 페이지 사이 행이 누락된다. (soop_clip_map.js SoopClipMap.SEARCH_PAGE_SIZE)
+            nListCnt: '30',
+            szOrder: 'reg_date',
+            szSearchScope: 'id',
+            szContentAttr: 'all',
+            nIncludeTranslationMatch: '1',
+            szFileType: fileType,
+            szTerm: 'period_select',
+            szStartDate: startDate,
+            szEndDate: endDate,
+            tab: 'vod', location: 'total_search', isHashSearch: '0',
+        };
+        for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+        const cacheKey = `SearchSoopClips:${url.toString()}`;
+        const cached = this._getCached(cacheKey);
+        if (cached !== null) return cached;
+
+        this.log(`SearchSoopClips: ${fileType} ${startDate}~${endDate} page ${page}`);
+        const res = await fetch(url.toString(), {
+            headers: { accept: 'application/json, text/plain, */*' },
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'include', // 로그인 상태에서만 보이는 클립(성인 등)까지 포함
+        });
+        if (res.status !== 200) return null;
+        const b = await res.json();
+        // 실패 응답은 소문자 result:-1 로 온다. 성공은 RESULT:1 (결과 0건 포함).
+        if (!b || b.RESULT !== 1 || !Array.isArray(b.DATA)) return null;
+        this._setCache(cacheKey, b);
+        return b;
+    }
+    /**
      * @description playbackTime 구간의 chat 로그 조회. VOD 전체 파일을 chat_duration 단위로 fetch 후 필터링.
      * @param {number | string} vodId
      * @param {number} startTimeSec - 시작 playbackTime (초)

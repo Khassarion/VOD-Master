@@ -23,7 +23,8 @@ def extract_class_definition(file_path, class_name):
             content = f.read()
         
         # import 문 제거
-        content = re.sub(r'^import\s+.*?from\s+["\'].*?["\'];?\s*$', '', content, flags=re.MULTILINE)
+        # 여러 줄에 걸친 import { a, b } from '...' 도 지운다.
+        content = re.sub(r'^import\s[\s\S]*?\sfrom\s+["\'][^"\']+["\'];?[ \t]*$', '', content, flags=re.MULTILINE)
         
         # export 키워드 제거
         content = re.sub(r'export\s+', '', content)
@@ -130,6 +131,7 @@ def build_tampermonkey_script():
             '{{SoopVeditorReplacement}}': ('src/module/soop_veditor_replacement.js', 'SoopVeditorReplacement'),
             '{{SoopLiveWatchCommentNotifier}}': ('src/module/soop_live_watch_comment_notifier.js', 'SoopLiveWatchCommentNotifier'),
             '{{SoopNextVideoAutoplayGuard}}': ('src/module/soop_next_video_autoplay_guard.js', 'SoopNextVideoAutoplayGuard'),
+            '{{SoopClipMap}}': ('src/module/soop_clip_map.js', 'SoopClipMap'),
         }
         
         # 각 플레이스홀더를 실제 클래스 정의로 교체
@@ -203,6 +205,7 @@ def create_test_extension():
         'src/module/soop_veditor_replacement.js',
         'src/module/soop_live_watch_comment_notifier.js',
         'src/module/soop_next_video_autoplay_guard.js',
+        'src/module/soop_clip_map.js',
         'src/module/soop_vodcore_page_bridge.js',
         'src/module/soop_vod_editor_category_loader.js',
         

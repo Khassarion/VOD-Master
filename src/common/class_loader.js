@@ -19,7 +19,8 @@ class ClassLoader {
             'ChzzkTimelineCommentProcessor': ['TimelineCommentProcessorBase'],
             'SoopLiveWatchCommentNotifier': ['IVodSync'],
             'SoopNextVideoAutoplayGuard': ['IVodSync'],
-            // 'SoopVeditorReplacement': ['IVodSync'],
+            'SoopVeditorReplacement': ['IVodSync'],
+            'SoopClipMap': ['IVodSync'],
         };
     }
 
