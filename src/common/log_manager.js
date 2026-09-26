@@ -367,7 +367,7 @@ function createAndShowSetupModal() {
                         padding:12px 16px; font-size:14px; cursor:pointer; width:100%;">기능 설명 문서 열기</button>
                     <button id="vodSyncSetupCloseBtn" type="button" style="
                         background:transparent; color:#666; border:none; border-radius:6px;
-                        padding:8px 16px; font-size:13px; cursor:pointer; width:100%;">한국인은 이런 거 안 봐요, 닫을래요</button>
+                        padding:8px 16px; font-size:13px; cursor:pointer; width:100%;">안 봤지만 그냥 닫을래요</button>
                 </div>
             </div>
         </div>
