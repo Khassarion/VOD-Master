@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VOD Master (SOOP)
 // @namespace    http://tampermonkey.net/
-// @version      1.8.0.0
+// @version      1.8.0.1
 // @description  SOOP 다시보기 타임스탬프 표시 및 다른 스트리머의 다시보기와 동기화
 // @author       Khassarion
 // @match        https://vod.sooplive.com/*
@@ -8693,6 +8693,8 @@ class SoopClipMap extends IVodSync {
         this._host = null;
         this._root = null;
         this._open = false;
+        this._popupWin = null; // 팝업 창으로 뺐을 때 그 창(window). 페이지에 있으면 null.
+        this._popupWatch = null;
         this._pollTimer = null;
         this._renderQueued = false;
         this._drag = null;
@@ -8703,7 +8705,7 @@ class SoopClipMap extends IVodSync {
         this._d = null;
         this._ui = {
             view: { s: 0, e: 1 }, ph: 0, hover: null, sort: 'start', axis: 'play',
-            kinds: { CLIP: true, CATCH: true }, listOpen: true, // listOpen: 오른쪽 클립·캐치 목록을 펼쳐 두었는가
+            kinds: { CLIP: true, CATCH: true }, listOpen: false, // listOpen: 오른쪽 클립·캐치 목록을 펼쳐 두었는가 (기본은 접힘)
             picked: new Set(), lastPick: null, // 목록에서 체크박스로 고른 항목 id (타임라인 복사용)
         };
         this._onKeyDown = (e) => {
@@ -8842,15 +8844,15 @@ class SoopClipMap extends IVodSync {
       <div class="ph-l"><h3>클립 탐색기</h3><span class="sub" id="vodMeta"></span></div>
       <div class="ph-r">
         <span class="readout" id="readout"></span>
-        <button class="btn" id="btnList" aria-expanded="true">목록 접기 ▸</button>
+        <button class="btn" id="btnList" aria-expanded="false">목록 펴기 ◂ (0)</button>
         <button class="btn" id="btnRescan">다시 검색</button>
+        <button class="btn" id="btnPopout">⧉ 새 창으로 보기</button>
         <button class="btn" id="btnClose" aria-label="탐색기 닫기">닫기 ✕</button>
       </div>
     </div>
-    <div class="body" id="body">
+    <div class="body nolist" id="body">
       <div class="main">
         <div class="sumrow">
-          <div class="hot" id="hot"></div>
           <span class="info" id="info"></span>
         </div>
         <div class="scanrow" id="scanrow" hidden></div>
@@ -8864,6 +8866,7 @@ class SoopClipMap extends IVodSync {
             <button data-axis="play" aria-pressed="true">재생 시간</button>
             <button data-axis="wall" aria-pressed="false">라이브 시각</button>
           </div>
+          <div class="hot" id="hot"></div>
           <div class="sp"></div>
           <span class="hint" id="laneHint" hidden>Alt+휠: 겹친 줄 위아래 스크롤</span>
           <div class="legend" id="legend"></div>
@@ -8932,12 +8935,63 @@ class SoopClipMap extends IVodSync {
 
     hideClipMapPanel() {
         this.log('탐색기 닫기');
+        if (this._popupWin) this._dockPanel(); // 새 창으로 나가 있었으면 먼저 페이지로 데려온다
         this._open = false;
         this._host.hidden = true;
         this.openButton?.setAttribute('aria-expanded', 'false');
         document.removeEventListener('keydown', this._onKeyDown, true);
         clearInterval(this._pollTimer);
         this._pollTimer = null;
+    }
+
+    /** 패널 안 "새 창으로 보기" 버튼: 나가 있으면 페이지로 되돌리고, 페이지에 있으면 새 창으로 뺀다. */
+    _togglePopout() {
+        if (this._popupWin && !this._popupWin.closed) this._dockPanel();
+        else this._popOutPanel();
+    }
+
+    /** 패널 DOM(호스트)을 그대로 새 창으로 옮긴다. 같은 노드를 옮기는 것이라 이벤트·상태가 그대로 이어진다. */
+    _popOutPanel() {
+        const w = window.open('', 'vodMasterClipMap', 'width=1180,height=820,menubar=no,toolbar=no,location=no,status=no');
+        if (!w) {
+            this._toast('팝업이 차단되었어요. 주소창의 팝업 차단 표시를 허용한 뒤 다시 시도해 주세요.');
+            return;
+        }
+        w.document.title = '클립 탐색기';
+        w.document.body.style.cssText = 'margin:0;min-height:100vh';
+        w.document.body.appendChild(this._host); // appendChild가 다른 문서 소속 노드를 그대로 입양한다 (섀도우 루트 포함)
+        this._host.hidden = false;
+        this._host.classList.add('popped');
+        this._popupWin = w;
+        w.addEventListener('pagehide', () => this._dockPanel());
+        w.addEventListener('keydown', this._onKeyDown, true);
+        w.addEventListener('resize', () => { if (this._d?.vod) this._renderMap(); });
+        this._popupWatch = setInterval(() => { if (w.closed) this._dockPanel(); }, 400); // 창을 닫아도 이벤트가 안 오는 경우 대비
+        this._$('#btnPopout').textContent = '◱ 페이지로 가져오기';
+    }
+
+    /** 새 창에 나가 있던 패널을 다시 원래 페이지로 데려온다. */
+    _dockPanel() {
+        if (!this._popupWin) return;
+        const w = this._popupWin;
+        this._popupWin = null;
+        clearInterval(this._popupWatch);
+        this._popupWatch = null;
+        this._host.classList.remove('popped');
+        document.body.appendChild(this._host);
+        this._host.hidden = !this._open;
+        if (this._$('#btnPopout')) this._$('#btnPopout').textContent = '⧉ 새 창으로 보기';
+        try {
+            if (!w.closed) w.close();
+        } catch (e) {
+            /* 이미 닫히는 중이면 무시 */
+        }
+        if (this._open) this._renderAll(); // 창 크기가 달라졌을 수 있으니 다시 그린다
+    }
+
+    /** 툴팁·손잡이 드래그처럼 화면 크기가 필요한 계산에 쓸 창. 새 창으로 나가 있으면 그 창 기준. */
+    _activeWin() {
+        return (this._popupWin && !this._popupWin.closed) ? this._popupWin : window;
     }
 
     // ---------- 클립·캐치 추가 ----------
@@ -9439,6 +9493,7 @@ class SoopClipMap extends IVodSync {
         $('#btnClose').addEventListener('click', () => this.hideClipMapPanel());
         $('#btnList').addEventListener('click', () => this._toggleList());
         $('#btnRescan').addEventListener('click', () => this._rescan());
+        $('#btnPopout').addEventListener('click', () => this._togglePopout());
         $('#kAll').addEventListener('click', () => this._setKinds('all'));
         $('#kClip').addEventListener('click', () => this._setKinds('CLIP'));
         $('#kCatch').addEventListener('click', () => this._setKinds('CATCH'));
@@ -9507,7 +9562,7 @@ class SoopClipMap extends IVodSync {
             const y0 = e.clientY;
             const h0 = panel.getBoundingClientRect().height;
             const move = (ev) => {
-                const h = SoopClipMap.clamp(h0 + (y0 - ev.clientY), SoopClipMap.PANEL_MIN_H, window.innerHeight - 16);
+                const h = SoopClipMap.clamp(h0 + (y0 - ev.clientY), SoopClipMap.PANEL_MIN_H, this._activeWin().innerHeight - 16);
                 panel.style.setProperty('--panel-h', `${Math.round(h)}px`);
                 panel.classList.add('sized');
             };
@@ -9664,9 +9719,10 @@ class SoopClipMap extends IVodSync {
         tip.hidden = false;
         const w = tip.offsetWidth;
         const h = tip.offsetHeight;
-        tip.style.left = `${SoopClipMap.clamp(x + (small ? 12 : 14), 8, window.innerWidth - w - 8)}px`;
+        const aw = this._activeWin();
+        tip.style.left = `${SoopClipMap.clamp(x + (small ? 12 : 14), 8, aw.innerWidth - w - 8)}px`;
         if (small) tip.style.top = `${y - h - 8 < 4 ? y + 16 : y - h - 8}px`;
-        else tip.style.top = `${y + 18 + h > window.innerHeight ? y - h - 12 : y + 18}px`;
+        else tip.style.top = `${y + 18 + h > aw.innerHeight ? y - h - 12 : y + 18}px`;
     }
 
     _hideTip() {
@@ -10097,7 +10153,7 @@ class SoopClipMap extends IVodSync {
 
     static SEEK_STRIP_Y = 56; // 확대·축소가 적용된 얇은 밀도 줄의 위치·높이. 이 줄을 눌러야 그 지점으로 이동(seek)한다.
     static SEEK_STRIP_H = 18;
-    static PANEL_MIN_H = 460; // 손잡이로 줄일 수 있는 패널 최소 높이(px). 이보다 작으면 내용이 넘친다. 최대는 창 높이 - 16px (CSS와 같은 값)
+    static PANEL_MIN_H = 133; // 손잡이로 줄일 수 있는 패널 최소 높이(px). 이보다 작으면 내부 스크롤로 감당한다. 최대는 창 높이 - 16px (CSS와 같은 값)
 
     static LEGEND_LABELS = ['1', '2', '3', '4–5', '6–8', '9+'];
 
@@ -10219,6 +10275,10 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .grip::after{content:"";position:absolute;left:50%;top:6px;width:44px;height:4px;margin-left:-22px;border-radius:2px;background:var(--line2);opacity:.7}
 .grip:hover::after,.grip.drag::after{background:var(--accent);opacity:1}
 .panel.sized{height:min(var(--panel-h),calc(100vh - 16px));max-height:none}
+:host(.popped){position:static;left:auto;right:auto;bottom:auto;height:100vh;width:100%;display:block}
+:host(.popped) .sheet{max-width:none;margin:0;height:100vh}
+:host(.popped) .panel{max-height:none;height:100vh;border:0;border-radius:0;box-shadow:none}
+:host(.popped) .grip{display:none}
 .body{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:12px;align-items:stretch}
 .main,.side{display:flex;flex-direction:column;gap:8px;min-width:0}
 .body.nolist{grid-template-columns:minmax(0,1fr)}

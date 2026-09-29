@@ -69,7 +69,7 @@ jobs:
           NOTES_PATH="doc/update_notification_${{ steps.version.outputs.tag }}.html"
           BODY="$INSTALL_GUIDE"
           if [ -f "$NOTES_PATH" ]; then
-            BODY="$BODY"$'\n\n'"📄 업데이트 알림: https://github.com/${{ github.repository }}/blob/${{ steps.version.outputs.tag }}/$NOTES_PATH"
+            BODY="$BODY"$'\n\n'"📄 업데이트 알림: https://khassarion.github.io/VOD-Master/doc/update_notification_${{ steps.version.outputs.tag }}.html"
           fi
           {
             echo "body<<EOF"
