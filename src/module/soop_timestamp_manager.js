@@ -236,7 +236,9 @@ export class SoopTimestampManager extends TimestampManagerBase {
         this.videoTag = document.querySelector('#video');
         
         if (this.vodInfo && this.vodInfo.type === "REVIEW"){ // 다시보기인 경우 순수 조회수 표시
-            const vodViewCountTag = document.querySelector('div.cnt_info li:nth-child(1) strong');
+            const vodViewCountTags = document.querySelectorAll('div.cnt_info li:nth-child(1) strong');
+            // vod player가 스크린모드이거나 전체화면인 경우 영상 위 오버레이에도 조회수가 표시되는데 스크린모드상태에서 새로고침하면 스크린모드가 켜진 상태로 페이지가 로드되어 selector에 첫번째로 잡힌 오버레이에 잘못 설정되어 video밖의 조회수 표시에 적용되지 않는 문제가 존재하여 querySelectorAll로 개수를 체크하여 다르게 처리.
+            const vodViewCountTag = vodViewCountTags.length === 2 ? vodViewCountTags[1] : vodViewCountTags[0];
             const realViewCount = this.vodInfo.view_cnt - this.vodInfo.live_total_view ;
             if (vodViewCountTag){
                 if (realViewCount != NaN)
