@@ -20,6 +20,10 @@ export class SettingsManager {
             soopLiveWatchDisableAutoplay: true,
             // 클립 탐색기: 플레이어에 "클립 탐색기" 버튼 표시 (기본 ON, 버튼을 누르기 전에는 요청하지 않음)
             enableClipMap: true,
+            // 방송 통계 그래프(채팅·유저·UP)를 재생 바 위에 그리는 기능 (기본 ON)
+            enableStatGraphs: true,
+            // 방송 통계 그래프 배경 불투명도 (0~100, 기본 50 = 기존 0x7F와 같은 정도)
+            statGraphOpacity: 50,
             // existing_comment | cooldown
             soopLiveWatchCommentDedupMode: 'cooldown',
             // video_duration | custom_hours (cooldown 모드일 때)

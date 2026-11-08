@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VOD Master (SOOP)
 // @namespace    http://tampermonkey.net/
-// @version      1.8.0.2
+// @version      1.8.1.0
 // @description  SOOP 다시보기 타임스탬프 표시 및 다른 스트리머의 다시보기와 동기화
 // @author       Khassarion
 // @match        https://vod.sooplive.com/*
@@ -61,6 +61,7 @@
         {{SoopLiveWatchCommentNotifier}}
         {{SoopNextVideoAutoplayGuard}}
         {{SoopClipMap}}
+        {{SoopStatGraphs}}
 
         // 타 플랫폼 동기화 iframe: API·링커·라이브 시청 댓글 알림·자동재생 방지만 기동
         if (isIframe) {
@@ -83,6 +84,7 @@
             new SoopLiveWatchCommentNotifier();
             new SoopNextVideoAutoplayGuard();
             new SoopClipMap();
+            new SoopStatGraph();
         }
 
         // 동기화 요청이 있는 경우 타임스탬프 매니저에게 요청
@@ -372,6 +374,20 @@
                 `클립 탐색기 버튼이 ${next ? 'ON' : 'OFF'}으로 설정되었습니다.\n`
                 + `(다음 VOD 페이지 로드부터 적용)`
             );
+        });
+    })();
+
+    // 채팅 수 그래프 설정 (유저스크립트 메뉴)
+    (function initChatCountGraphSettingsMenuTM() {
+        if (typeof GM_registerMenuCommand !== 'function' || typeof GM_getValue !== 'function' || typeof GM_setValue !== 'function') {
+            return;
+        }
+        const KEY_ENABLE = 'enableStatGraphs';
+        GM_registerMenuCommand('재생 바 통계 그래프 ON/OFF', () => {
+            const next = GM_getValue(KEY_ENABLE, true) === false;
+            GM_setValue(KEY_ENABLE, next);
+            alert(`재생 바 통계 그래프가 ${next ? 'ON' : 'OFF'}으로 설정되었습니다.
+(다음 VOD 페이지 로드부터 적용)`);
         });
     })();
 

@@ -558,6 +558,40 @@
                     </div>
 
                     <div class="setting-item">
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="enableStatGraphs" checked>
+                            방송 별별통계 그래프 개선 (기본 ON)
+                        </label>
+                        <small style="color: #666; display: block; margin-top: 5px;">
+                            방송 별별통계의 <b>채팅 수</b>, <b>유저 수</b>, <b>UP</b> 항목을 선택하면 나오는 그래프를 개선합니다.
+                        </small>
+                        <div style="margin-top: 10px;">
+                            <label for="statGraphOpacity" style="display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: #555;">
+                                <span>그래프 배경 불투명도</span>
+                                <span id="statGraphOpacityValue">50%</span>
+                            </label>
+                            <input type="range" id="statGraphOpacity" min="0" max="100" style="width: 100%;">
+                            <div style="margin-top: 8px; border-radius: 6px; overflow: hidden; background: #15181d; padding: 10px;">
+                                <!-- 하늘색 배경 + 갈색 땅으로 "방송 화면"을 흉내 낸다. 그래프 패널(검은 반투명 영역)은
+                                     그 화면 아래쪽 일부에만 얹히는 모습이라, 화면 영역이 그래프 패널보다 커야 실제 모습과
+                                     헷갈리지 않는다. 화면이 그래프 패널 뒤로도 이어져 있어서(부모 배경) 불투명도를 조절하면
+                                     그 차이가 그대로 보인다. -->
+                                <div style="position: relative; height: 90px; border-radius: 4px 4px 0 0; overflow: hidden; background: #7ec0e8;">
+                                    <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 26px; background: #8b5e34;"></div>
+                                    <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+                                        color: #fff; font-size: 13px; font-weight: 700; text-shadow: 0 1px 3px rgba(0, 0, 0, .6);">방송 화면 예시입니다.</div>
+                                    <div id="statGraphOpacityPreview" style="position: absolute; left: 0; right: 0; bottom: 0; height: 36px; background: rgba(17, 21, 27, 0.5);">
+                                        <svg viewBox="0 0 100 36" preserveAspectRatio="none" style="display: block; width: 100%; height: 100%;">
+                                            <polyline points="0,30 10,22 20,26 30,14 40,18 50,8 60,16 70,10 80,20 90,12 100,18" fill="none" stroke="#4b8bf5" stroke-width="2"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div style="height: 6px; background: #2a2d33; border-radius: 0 0 4px 4px;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
                         <label>라이브 중 VOD 시청 알림</label>
                         <small style="color: #666; display: block; margin-top: 5px;">
                             내가 라이브 중일 때 클립·캐치·편집·업로드 VOD를 음소거 해제 상태로 보면,

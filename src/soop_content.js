@@ -144,6 +144,7 @@ if (window == top && window.location.origin.includes(new URL(window.VODSync.Soop
             'SoopLiveWatchCommentNotifier': 'src/module/soop_live_watch_comment_notifier.js',
             'SoopNextVideoAutoplayGuard': 'src/module/soop_next_video_autoplay_guard.js',
             'SoopClipMap': 'src/module/soop_clip_map.js',
+            'SoopStatGraph': 'src/module/soop_stat_graphs.js',
         };
         
         // 클래스 로더를 통해 필요한 클래스들 로드
@@ -164,6 +165,7 @@ if (window == top && window.location.origin.includes(new URL(window.VODSync.Soop
             new classes.SoopLiveWatchCommentNotifier();
             new classes.SoopNextVideoAutoplayGuard();
             new classes.SoopClipMap();
+            new classes.SoopStatGraph();
         }
 
         // 동기화 요청이 있는 경우 타임스탬프 매니저에게 요청

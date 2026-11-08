@@ -132,6 +132,7 @@ def build_tampermonkey_script():
             '{{SoopLiveWatchCommentNotifier}}': ('src/module/soop_live_watch_comment_notifier.js', 'SoopLiveWatchCommentNotifier'),
             '{{SoopNextVideoAutoplayGuard}}': ('src/module/soop_next_video_autoplay_guard.js', 'SoopNextVideoAutoplayGuard'),
             '{{SoopClipMap}}': ('src/module/soop_clip_map.js', 'SoopClipMap'),
+            '{{SoopStatGraphs}}': ('src/module/soop_stat_graphs.js', 'SoopStatGraph'),
         }
         
         # 각 플레이스홀더를 실제 클래스 정의로 교체
@@ -206,6 +207,7 @@ def create_test_extension():
         'src/module/soop_live_watch_comment_notifier.js',
         'src/module/soop_next_video_autoplay_guard.js',
         'src/module/soop_clip_map.js',
+        'src/module/soop_stat_graphs.js',
         'src/module/soop_vodcore_page_bridge.js',
         'src/module/soop_vod_editor_category_loader.js',
         

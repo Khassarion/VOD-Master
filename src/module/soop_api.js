@@ -18,6 +18,7 @@ const DEFAULT_SOOP_URLS = {
     RES_ORIGIN: 'https://res.sooplive.com',
     OGQ_STICKER_CDN_ORIGIN: 'https://ogq-sticker-global-cdn-z01.sooplive.com',
     OGQ_MARKET_ORIGIN: 'https://ogqmarket.sooplive.com',
+    APISABANA_ORIGIN: 'https://apisabana.sooplive.com',
 };
 
 export class SoopAPI extends IVodSync{
@@ -247,6 +248,52 @@ export class SoopAPI extends IVodSync{
     }
 
     /**
+     * 다시보기 방송 통계 그래프 데이터. 응답 data.cnt는 [분 인덱스, 값] 배열, data.text는 값 문구("채팅 %s개" 등).
+     * @param {{ titleNo: number|string, stationNo: number|string, bbsNo: number|string, module: string, nIdx: string|number, loginId?: string, referer?: string }} opts
+     * @returns {Promise<{ cnt: Array<[number, number]>, text: string }|null>} 실패하면 null
+     */
+    async GetSoopVodStat(opts = {}) {
+        const { titleNo, stationNo, bbsNo, module, nIdx, loginId = '', referer: refererOpt } = opts;
+        if (titleNo == null || stationNo == null || bbsNo == null || !module) {
+            this.error('GetSoopVodStat: titleNo, stationNo, bbsNo, module 필수');
+            return null;
+        }
+        const tn = String(titleNo);
+        const cacheKey = `GetSoopVodStat:${tn}:${module}`;
+        const cached = this._getCached(cacheKey);
+        if (cached !== null) return cached;
+        const referer = typeof refererOpt === 'string' && refererOpt.length > 0
+            ? refererOpt
+            : `${this.SoopUrls.VOD_ORIGIN}/player/${tn}`;
+        const body = new URLSearchParams({
+            szAction: 'view', nDeviceType: '1', nTitleNo: tn, szLang: 'ko_KR',
+            nStationNo: String(stationNo), nBbsNo: String(bbsNo), szType: 'bj',
+            szModule: module, szSysType: 'html5', szLoginId: loginId, nIdx: String(nIdx),
+        });
+        const res = await fetch(`${this.SoopUrls.APISABANA_ORIGIN}/service/vod_star2_stats.php`, {
+            headers: {
+                accept: 'application/json, text/plain, */*',
+                'content-type': 'application/x-www-form-urlencoded',
+            },
+            referrer: referer,
+            body: body.toString(),
+            method: 'POST',
+            mode: 'cors',
+            credentials: 'include',
+        });
+        if (res.status !== 200) {
+            this.error('GetSoopVodStat HTTP', res.status);
+            return null;
+        }
+        const json = await res.json();
+        const cnt = json?.result === 1 && Array.isArray(json.data?.cnt) ? json.data.cnt : null;
+        if (!cnt) return null;
+        const stat = { cnt, text: json.data.text || '%s' };
+        this._setCache(cacheKey, stat);
+        return stat;
+    }
+
+    /**
      * stbbs `vodInfo.php?mode=web` VOD 메타 (게시판·언어·다중 파일·총 길이 등).
      * @param {number | string} titleNo — 플레이어 `/player/{titleNo}` 과 동일
      * @param {{ referer?: string }} [opts] — 생략 시 `https://veditor.sooplive.com/web/{titleNo}`
@@ -312,26 +359,45 @@ export class SoopAPI extends IVodSync{
      * @returns 
      */
     async GetSoopVOD_List(streamerId, start_date, end_date){
-        const start_date_str = start_date.toISOString().slice(0, 10).replace(/-/g, '');
-        const end_date_str = end_date.toISOString().slice(0, 10).replace(/-/g, '');
+        const start_date_str = start_date.toISOString().slice(0, 10);
+        const end_date_str = end_date.toISOString().slice(0, 10);
         this.log(`start_date: ${start_date_str}, end_date: ${end_date_str}`);
-        const url = new URL(`${this.SoopUrls.CHAPI_ORIGIN}/api/${streamerId}/vods/review`);
-        url.searchParams.set("keyword", "");
-        url.searchParams.set("orderby", "reg_date");
-        url.searchParams.set("page", "1");
-        url.searchParams.set("field", "title,contents,user_nick,user_id");
-        url.searchParams.set("per_page", "60");
-        url.searchParams.set("start_date", start_date_str);
-        url.searchParams.set("end_date", end_date_str);
-        const cacheKey = `GetSoopVOD_List:${url.toString()}`;
+        // 구 chapi.sooplive.com/api/{id}/vods/review 엔드포인트가 api-channel v1.3으로 교체됨에 따라
+        // 응답을 기존 호출부(title_no/title_name/count.vod_read_cnt/data)와 맞는 형태로 변환해서 반환한다.
+        const buildUrl = (page) => {
+            const url = new URL(`${this.SoopUrls.API_CHANNEL_ORIGIN}/v1.3/channel/${streamerId}/vod/review`);
+            url.searchParams.set("startDate", start_date_str);
+            url.searchParams.set("endDate", end_date_str);
+            url.searchParams.set("keyword", "");
+            url.searchParams.set("orderBy", "reg_date");
+            url.searchParams.set("perPage", "60");
+            url.searchParams.set("page", String(page));
+            url.searchParams.set("field", "title,contents,user_nick,user_id");
+            return url;
+        };
+        const cacheKey = `GetSoopVOD_List:${buildUrl(1).toString()}`;
         const cached = this._getCached(cacheKey);
         if (cached !== null) return cached;
 
-        this.log(`GetSoopVOD_List: ${url.toString()}`);
-        const res = await fetch(url.toString());
+        const toLegacyItem = (item) => ({
+            title_no: item.titleNo,
+            title_name: item.titleName,
+            count: { vod_read_cnt: item.count?.vodReadCnt },
+        });
+
+        this.log(`GetSoopVOD_List: ${buildUrl(1).toString()}`);
+        const res = await fetch(buildUrl(1).toString());
         const b = await res.json();
-        this._setCache(cacheKey, b);
-        return b;
+        const allData = Array.isArray(b.contents) ? b.contents.map(toLegacyItem) : [];
+        const totalPages = b?.meta?.totalPages ?? 1;
+        for (let page = 2; page <= totalPages; page++) {
+            const pageRes = await fetch(buildUrl(page).toString());
+            const pageData = await pageRes.json();
+            if (Array.isArray(pageData.contents)) allData.push(...pageData.contents.map(toLegacyItem));
+        }
+        const result = { data: allData };
+        this._setCache(cacheKey, result);
+        return result;
     }
     /**
      * @description 스트리머의 클립·캐치를 기간으로 검색한다 (통합검색 vodSearch v5.0). 응답 항목의 `org_title_no`가 바로 위 부모(다시보기 또는 클립)의 번호다.

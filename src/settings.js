@@ -84,6 +84,9 @@ class settingPageManager {
         document.getElementById('soopLiveWatchCommentNotify').checked = !!this.settings.soopLiveWatchCommentNotify;
         document.getElementById('soopLiveWatchDisableAutoplay').checked = this.settings.soopLiveWatchDisableAutoplay !== false;
         document.getElementById('enableClipMap').checked = this.settings.enableClipMap !== false;
+        document.getElementById('enableStatGraphs').checked = this.settings.enableStatGraphs !== false;
+        document.getElementById('statGraphOpacity').value = this.settings.statGraphOpacity ?? 50;
+        this.updateStatGraphOpacityPreview();
         document.getElementById('soopLiveWatchCommentToast').checked = this.settings.soopLiveWatchCommentToast !== false;
         document.getElementById('soopLiveWatchCommentText').value =
             typeof this.settings.soopLiveWatchCommentText === 'string' && this.settings.soopLiveWatchCommentText.trim()
@@ -265,6 +268,14 @@ class settingPageManager {
         }
     }
 
+    // 슬라이더 값대로 미리보기 배경과 숫자 표시를 맞춘다.
+    updateStatGraphOpacityPreview() {
+        const v = Number(document.getElementById('statGraphOpacity').value);
+        document.getElementById('statGraphOpacityValue').textContent = `${v}%`;
+        // 체크무늬(방송 화면)는 이 패널의 부모 배경이라 여기선 반투명 색만 바꾸면 된다.
+        document.getElementById('statGraphOpacityPreview').style.background = `rgba(17, 21, 27, ${v / 100})`;
+    }
+
     collectSettings() {
         this.settings.enableTimestamp = document.getElementById('enableTimestamp').checked;
         this.settings.enableSyncPanel = document.getElementById('enableSyncPanel').checked;
@@ -282,6 +293,8 @@ class settingPageManager {
         this.settings.soopLiveWatchCommentNotify = document.getElementById('soopLiveWatchCommentNotify').checked;
         this.settings.soopLiveWatchDisableAutoplay = document.getElementById('soopLiveWatchDisableAutoplay').checked;
         this.settings.enableClipMap = document.getElementById('enableClipMap').checked;
+        this.settings.enableStatGraphs = document.getElementById('enableStatGraphs').checked;
+        this.settings.statGraphOpacity = Number(document.getElementById('statGraphOpacity').value);
         this.settings.soopLiveWatchCommentToast = document.getElementById('soopLiveWatchCommentToast').checked;
         const commentText = document.getElementById('soopLiveWatchCommentText').value.trim();
         this.settings.soopLiveWatchCommentText = commentText || '잘 볼게요';
@@ -297,6 +310,7 @@ class settingPageManager {
     }
 
     setupEventListeners() {
+        document.getElementById('statGraphOpacity').addEventListener('input', () => this.updateStatGraphOpacityPreview());
         document.getElementById('soopAutoRestoreChat').addEventListener('change', () => {
             this.updateAutoRestoreOptionsState();
         });
