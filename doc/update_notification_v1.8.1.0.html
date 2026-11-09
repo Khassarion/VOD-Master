@@ -11,18 +11,19 @@
         <div class="version-number" id="versionNumber">v1.8.1.0 주요 변경사항</div>
         <ul class="changes-list" id="changesList">
             <li>
+                <strong>중요 버그 수정</strong> <span style="color:#888; font-size:13px;">(SOOP)</span>
+                <ul class="bug-fix-list" style="margin-top: 8px; margin-bottom: 8px;">
+                    <li>최근 날짜 (2026년 11월 6일 경 이후의) 다시보기와 동기화하지 못하던 문제를 수정했습니다.</li>
+                    <li>Sync VOD로 날짜 기준 다시보기를 찾을 때 60개가 넘는 경우에 동기화가 실패할 수 있던 문제도 함께 수정했습니다.</li>
+                </ul>
+            </li>
+            <li>
                 <strong>새 기능: 방송 별별통계 그래프 개선</strong> <span style="color:#888; font-size:13px;">(SOOP)</span>
                 <ul class="bug-fix-list" style="margin-top: 8px; margin-bottom: 8px;">
                     <li>방송 별별통계의 <b>채팅 수</b>, <b>유저 수</b>, <b>UP</b> 항목을 선택하면 나오는 그래프를 개선합니다.</li>
                     <li>그래프에 마우스를 올리면 시간과 값이 나오고, 클릭하면 그 시점으로 이동합니다.</li>
                     <li>설정에서 ON/OFF할 수 있습니다. (기본 ON)</li>
                     <li>자세한 설명은 <a href="index.html#statgraph" target="_blank" rel="noopener noreferrer">여기</a>에서 확인할 수 있습니다.</li>
-                </ul>
-            </li>
-            <li>
-                <strong>버그 수정</strong> <span style="color:#888; font-size:13px;">(SOOP)</span>
-                <ul class="bug-fix-list" style="margin-top: 8px; margin-bottom: 8px;">
-                    <li>SOOP 다시보기 목록 조회 API 변경에 대응했습니다. Sync VOD로 날짜 기준 다시보기를 찾을 때 60개가 넘는 기간이면 일부가 누락되던 문제도 함께 수정했습니다.</li>
                 </ul>
             </li>
         </ul>
