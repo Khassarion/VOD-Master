@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         VOD Master (SOOP)
 // @namespace    http://tampermonkey.net/
-// @version      1.8.1.0
+// @version      1.8.2.0
 // @description  SOOP 다시보기 타임스탬프 표시 및 다른 스트리머의 다시보기와 동기화
 // @author       Khassarion
 // @match        https://vod.sooplive.com/*
@@ -3801,7 +3801,8 @@ class TimelineCommentProcessorBase extends IVodSync {
                 }
                 const nicknameColor = (chat.querySelector('nf')?.textContent || '').trim();
                 const subscriptionMonths = (chat.querySelector('acfw')?.textContent || '').trim();
-                
+                const extValue = (chat.querySelector('ext')?.textContent || '').trim();
+
                 const ogqGid = isOgq ? (chat.querySelector('gid')?.textContent || '').trim() : null;
                 const ogqSid = isOgq ? (chat.querySelector('sid')?.textContent || '').trim() : null;
                 const ogqVersion = isOgq ? (chat.querySelector('v')?.textContent || '').trim() : null;
@@ -3819,7 +3820,7 @@ class TimelineCommentProcessorBase extends IVodSync {
 
                 const p2Num = parseInt(p2Value || '0', 10);
                 const subscriptionTier = ((p2Num & 0x80000) !== 0) ? 2 : 1;
-                const badgeType = this.getBadgeType(pValue);
+                const badgeType = this.getBadgeType(pValue, extValue);
                 const gradeValue = this.getGradeValue(pValue, subscriptionMonths);
 
                 let ogqImageUrl = null;
@@ -3917,6 +3918,14 @@ class TimelineCommentProcessorBase extends IVodSync {
             } else if (badgeType === 'vip') {
                 badge.className = 'grade-badge-vip';
                 badge.setAttribute('tip', '열혈팬');
+                badge.innerText = '열';
+            } else if (badgeType === 'vip-monthly') {
+                badge.className = 'grade-badge-vip-monthly';
+                badge.setAttribute('tip', '월간 열혈팬');
+                badge.innerText = '열';
+            } else if (badgeType === 'vip-both') {
+                badge.className = 'grade-badge-vip-both';
+                badge.setAttribute('tip', '누적 · 월간 열혈팬');
                 badge.innerText = '열';
             } else if (badgeType === 'subscribe') {
                 badge.className = 'grade-badge-fan';
@@ -4247,12 +4256,16 @@ class TimelineCommentProcessorBase extends IVodSync {
         return bestMatch?.file_name || tier[0]?.file_name || null;
     }
 
-    // p 태그 값에 따른 배지 타입 결정
-    getBadgeType(pValue) {
+    // p 태그 값(누적열혈팬) + ext 태그 값(tfm=11이면 월간열혈팬)에 따른 배지 타입 결정
+    getBadgeType(pValue, extValue) {
         const pNum = parseInt(pValue || '0', 10);
-        
+        const isCumulativeHotFan = (pNum & 0x8000) !== 0;
+        const isMonthlyHotFan = /(?:^|&)tfm=11(?:&|$)/.test(extValue || '');
+
         if ((pNum & 0x40) !== 0) return 'manager';
-        if ((pNum & 0x8000) !== 0) return 'vip';
+        if (isCumulativeHotFan && isMonthlyHotFan) return 'vip-both';
+        if (isCumulativeHotFan) return 'vip';
+        if (isMonthlyHotFan) return 'vip-monthly';
         if ((pNum & 0x20) !== 0) return 'subscribe';
         if ((pNum & 0x100000) !== 0) return 'support';
         return null;
