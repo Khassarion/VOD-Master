@@ -18,6 +18,7 @@ export class SoopPrevChatViewer extends IVodSync {
         this.defaultEmoticon = null; // 기본 이모티콘 데이터 캐시
         this.emoticonReplaceMap = new Map(); // 이모티콘 ID -> 이미지 HTML 매핑
         this.restoreInterval = 30; // 복원 구간 단위 (초)
+        this.soopBuiltInRestoreSeconds = 30; // SOOP 공식 패치가 재생 시점 변경 시 자동 복원해주는 구간 (초)
         this.excludeEmoticonOnlyChat = false; // 이모티콘만으로 이루어진 채팅 복원 제외 여부
         this.autoRestoreEnabled = false; // 버튼 생성 시 1회 자동 복원 여부
         this.autoRestorePeriod = 30; // 자동 복원 시 불러올 구간 (초)
@@ -185,12 +186,13 @@ export class SoopPrevChatViewer extends IVodSync {
             return;
         }
 
-        const endTime = currentPlaybackTime;
-        const startTime = Math.max(0, currentPlaybackTime - this.restoreInterval);
+        // SOOP 공식 패치로 재생 시점 변경 시 최근 30초 채팅은 자동 복원되므로, 그 이전 시점부터 계산
+        const endTime = Math.max(0, currentPlaybackTime - this.soopBuiltInRestoreSeconds);
+        const startTime = Math.max(0, endTime - this.restoreInterval);
         
-        // statVBox 재생성 시점의 복구 끝지점 저장 (처음 세팅되는 시점)
+        // statVBox 재생성 시점의 실제 재생 시점 저장 (툴팁 "N초 전" 계산 기준, 처음 세팅되는 시점)
         if (this.initialRestoreEndTime === null) {
-            this.initialRestoreEndTime = endTime;
+            this.initialRestoreEndTime = currentPlaybackTime;
         }
         
         this.nextRestorePlan = { 
